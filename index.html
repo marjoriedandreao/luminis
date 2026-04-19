@@ -586,7 +586,7 @@ function setPhase(i,state){
 }
 
 async function callClaude(system,userContent,maxTokens=4000){
-  const response=await fetch('https://api.anthropic.com/v1/messages',{
+  const response=await fetch('https://luminis-api.marjorie-dandreao.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system,messages:[{role:'user',content:userContent}]})
