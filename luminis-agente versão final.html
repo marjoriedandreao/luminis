@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LÚMINIS — Diagnóstico de Carreira Médica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#2E7D7A;--teal-light:#4A9E9A;--teal-pale:#E8F4F3;--teal-dark:#1A5C59;
+  --olive:#5C7A4E;--olive-light:#7A9E6A;--olive-pale:#EDF2E9;
+  --ice:#F7F8F6;--white:#FFFFFF;--ink:#1C2420;--ink-mid:#3D4E48;
+  --ink-light:#6B7D77;--border:#D8E2DF;--border-light:#EBF0EE;
+  --danger:#B03A2E;--gold:#C9A96E;
+  --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);background:var(--ice);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:100;background:var(--teal-dark);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:0 2px 12px rgba(26,92,89,0.18);}
+.nav-brand{display:flex;flex-direction:column;gap:1px;}
+.nav-brand-name{font-family:var(--serif);font-size:22px;font-weight:500;color:#fff;letter-spacing:0.12em;line-height:1;}
+.nav-brand-sub{font-size:10px;font-weight:300;color:rgba(255,255,255,0.55);letter-spacing:0.14em;text-transform:uppercase;}
+.nav-right{display:flex;align-items:center;gap:1.5rem;}
+.nav-author{font-size:12px;color:rgba(255,255,255,0.7);font-weight:300;letter-spacing:0.04em;font-style:italic;}
+.nav-author span{color:var(--gold);font-style:normal;font-weight:400;}
+.progress-track{width:180px;height:2px;background:rgba(255,255,255,0.2);border-radius:1px;}
+.progress-fill{height:100%;background:var(--gold);border-radius:1px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.nav-step{font-size:11px;color:rgba(255,255,255,0.55);font-weight:300;white-space:nowrap;}
+
+/* ── HERO ── */
+.hero{background:var(--white);border-bottom:1px solid var(--border-light);padding:4rem 2rem 3rem;text-align:center;}
+.hero-eyebrow{font-size:11px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);margin-bottom:1rem;}
+.hero-title{font-family:var(--serif);font-size:clamp(30px,5vw,46px);font-weight:400;color:var(--ink);letter-spacing:0.03em;line-height:1.15;margin-bottom:1rem;}
+.hero-sub{font-size:15px;color:var(--ink-light);font-weight:300;max-width:460px;margin:0 auto;line-height:1.75;}
+
+/* ── MAIN ── */
+.main{max-width:720px;margin:0 auto;padding:3rem 1.5rem 5rem;}
+.step{display:none;}
+.step.active{display:block;animation:fadeUp 0.35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── LGPD SCREEN ── */
+.lgpd-card{background:var(--white);border:1px solid var(--border-light);border-radius:16px;padding:2.5rem;box-shadow:0 2px 16px rgba(28,36,32,0.06);max-width:600px;margin:0 auto;}
+.lgpd-icon{font-size:2.5rem;display:block;text-align:center;margin-bottom:1.25rem;}
+.lgpd-title{font-family:var(--serif);font-size:24px;font-weight:400;color:var(--ink);text-align:center;margin-bottom:0.5rem;}
+.lgpd-sub{font-size:14px;color:var(--ink-light);font-weight:300;text-align:center;line-height:1.7;margin-bottom:2rem;}
+.lgpd-items{display:flex;flex-direction:column;gap:1rem;margin-bottom:2rem;}
+.lgpd-item{display:flex;align-items:flex-start;gap:12px;padding:1rem 1.25rem;background:var(--teal-pale);border-radius:10px;border:1px solid rgba(46,125,122,0.15);}
+.lgpd-item-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.lgpd-item-text{font-size:14px;color:var(--ink-mid);font-weight:300;line-height:1.6;}
+.lgpd-item-text strong{font-weight:500;color:var(--ink);}
+.lgpd-check-row{display:flex;align-items:flex-start;gap:10px;padding:1rem 1.25rem;background:var(--olive-pale);border-radius:10px;border:1px solid rgba(92,122,78,0.2);margin-bottom:1.5rem;cursor:pointer;}
+.lgpd-check-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--olive);flex-shrink:0;margin-top:1px;cursor:pointer;}
+.lgpd-check-label{font-size:14px;color:var(--ink-mid);font-weight:300;line-height:1.6;cursor:pointer;}
+.lgpd-check-label strong{font-weight:500;color:var(--ink);}
+.lgpd-error{font-size:13px;color:var(--danger);display:none;margin-bottom:1rem;text-align:center;}
+
+/* ── STEP ELEMENTS ── */
+.step-eyebrow{font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin-bottom:0.75rem;}
+.step-title{font-family:var(--serif);font-size:clamp(21px,3.5vw,27px);font-weight:400;color:var(--ink);line-height:1.3;margin-bottom:0.6rem;}
+.step-hint{font-size:14px;color:var(--ink-light);font-weight:300;line-height:1.75;margin-bottom:1.75rem;max-width:560px;}
+.optional{display:inline-block;font-size:11px;padding:2px 10px;border-radius:20px;border:1px solid var(--border);color:var(--ink-light);font-family:var(--sans);font-weight:300;vertical-align:middle;margin-left:8px;}
+
+/* ── UPLOAD ── */
+.upload-zone{border:1px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;background:var(--white);transition:border-color 0.2s,background 0.2s;margin-bottom:1rem;}
+.upload-zone:hover{border-color:var(--teal);background:var(--teal-pale);}
+.upload-icon{font-size:1.8rem;display:block;margin-bottom:0.5rem;}
+.upload-label{font-size:14px;color:var(--ink-light);line-height:1.6;}
+.upload-label strong{color:var(--teal);font-weight:500;}
+.upload-sub{font-size:12px;color:var(--border);margin-top:0.25rem;}
+.file-preview{display:none;align-items:center;gap:12px;padding:10px 14px;background:var(--teal-pale);border:1px solid rgba(46,125,122,0.2);border-radius:8px;margin-bottom:1rem;}
+.file-preview-name{font-size:13px;color:var(--teal);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-remove{font-size:12px;color:var(--teal);cursor:pointer;border:none;background:none;font-weight:500;font-family:var(--sans);}
+.img-previews{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;}
+.img-thumb-wrap{position:relative;}
+.img-thumb{width:84px;height:84px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:block;}
+.img-thumb-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--ink);color:#fff;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--ice);line-height:1;}
+
+textarea{width:100%;padding:1rem 1.25rem;border:1px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:15px;font-weight:300;color:var(--ink);background:var(--white);resize:vertical;line-height:1.7;min-height:120px;transition:border-color 0.2s,box-shadow 0.2s;}
+textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(46,125,122,0.1);}
+textarea::placeholder{color:#B8C5C2;}
+
+.tag-label{font-size:13px;color:var(--ink-light);font-weight:300;margin-bottom:0.75rem;}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;}
+.tag{padding:6px 14px;border-radius:24px;font-size:13px;font-weight:300;border:1px solid var(--border);cursor:pointer;background:var(--white);color:var(--ink-mid);transition:all 0.15s;font-family:var(--sans);}
+.tag:hover{border-color:var(--teal);color:var(--teal);}
+.tag.selected{background:var(--teal-pale);border-color:var(--teal);color:var(--teal);font-weight:400;}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;gap:10px;margin-top:1.75rem;align-items:center;flex-wrap:wrap;}
+.btn{padding:11px 24px;border-radius:8px;font-size:14px;font-weight:400;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--ink-mid);transition:all 0.15s;font-family:var(--sans);}
+.btn:hover{border-color:var(--teal);color:var(--teal);}
+.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:500;}
+.btn-primary:hover{background:var(--teal-light);border-color:var(--teal-light);color:#fff;}
+.btn-ghost{border:none;color:var(--ink-light);font-size:13px;padding:11px 4px;}
+.btn-ghost:hover{background:transparent;color:var(--teal);text-decoration:underline;}
+.btn-olive{background:var(--olive);color:#fff;border-color:var(--olive);}
+.btn-olive:hover{background:var(--olive-light);border-color:var(--olive-light);color:#fff;}
+.char-count{font-size:12px;color:var(--border);font-weight:300;margin-left:auto;}
+.error-msg{font-size:13px;color:var(--danger);margin-top:0.5rem;display:none;font-weight:300;}
+
+/* ── LOADING ── */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;padding:4rem 1rem;gap:1.5rem;text-align:center;}
+.loading-title{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);}
+.loading-sub{font-size:13px;color:var(--ink-light);font-weight:300;}
+.loading-phases{width:100%;max-width:420px;}
+.phase-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light);font-size:14px;color:var(--ink-light);font-weight:300;}
+.phase-item:last-child{border-bottom:none;}
+.phase-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.phase-pending{background:var(--border-light);}
+.phase-active{background:var(--teal-pale);border:1px solid var(--teal);animation:pulse 1.2s ease infinite;}
+.phase-active::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--teal);}
+.phase-done{background:var(--teal);color:#fff;}
+.phase-done::after{content:'✓';font-size:11px;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+/* ── SCORE ── */
+.score-card{background:var(--white);border:1px solid var(--border-light);border-radius:14px;padding:2rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(28,36,32,0.04);}
+.score-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+.score-title{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--ink);}
+.score-total{text-align:center;}
+.score-number{font-family:var(--serif);font-size:44px;font-weight:400;color:var(--teal);line-height:1;}
+.score-label{font-size:11px;color:var(--ink-light);font-weight:300;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+.score-dim{margin-bottom:1.25rem;}
+.score-dim:last-child{margin-bottom:0;}
+.score-dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.score-dim-name{font-size:13px;font-weight:500;color:var(--ink-mid);}
+.score-dim-val{font-size:13px;font-weight:500;color:var(--teal);}
+.score-bar-track{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:3px;background:var(--teal);transition:width 1s cubic-bezier(.4,0,.2,1);}
+.score-dim-hint{font-size:12px;color:var(--ink-light);font-weight:300;margin-top:4px;line-height:1.5;}
+
+/* ── RESULT ── */
+.result-header{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border-light);}
+.result-eyebrow{font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin-bottom:0.5rem;}
+.result-title{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--ink);}
+.result-sub{font-size:14px;color:var(--ink-light);font-weight:300;margin-top:0.25rem;}
+.result-card{background:var(--white);border:1px solid var(--border-light);border-radius:14px;padding:2rem;margin-bottom:1.25rem;box-shadow:0 1px 4px rgba(28,36,32,0.04);}
+.result-card-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;}
+.result-card-label::after{content:'';flex:1;height:1px;background:var(--border-light);}
+.result-content{font-size:15px;color:var(--ink-mid);line-height:1.85;white-space:pre-wrap;font-weight:300;}
+.result-content strong{font-weight:500;color:var(--ink);}
+
+/* ── PLANO ── */
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;margin-top:0.5rem;}
+.plan-day{background:var(--ice);border:1px solid var(--border-light);border-radius:8px;padding:12px 14px;}
+.plan-day-num{font-size:10px;font-weight:500;color:var(--teal);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.plan-day-theme{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px;line-height:1.3;}
+.plan-day-format{font-size:11px;color:var(--ink-light);font-weight:300;}
+
+/* ── CARTAS ── */
+.carta-picker{background:var(--white);border:1px solid var(--border-light);border-radius:14px;padding:2rem;margin-bottom:1.25rem;}
+.carta-picker-title{font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:0.4rem;}
+.carta-picker-sub{font-size:14px;color:var(--ink-light);font-weight:300;margin-bottom:1.25rem;line-height:1.6;}
+.carta-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;}
+.carta-tag{padding:7px 16px;border-radius:24px;font-size:13px;font-weight:300;border:1px solid var(--border);cursor:pointer;background:var(--white);color:var(--ink-mid);transition:all 0.15s;font-family:var(--sans);}
+.carta-tag:hover{border-color:var(--olive);color:var(--olive);}
+.carta-tag.selected{background:var(--olive-pale);border-color:var(--olive);color:var(--olive);font-weight:400;}
+.carta-generating{display:none;align-items:center;gap:10px;padding:1rem 0;font-size:14px;color:var(--ink-light);}
+.mini-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--olive);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.carta-destino{background:var(--ice);border:1px solid var(--border-light);border-radius:10px;padding:1.25rem;margin-bottom:0.75rem;}
+.carta-destino-title{font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--olive);margin-bottom:0.75rem;}
+.carta-text{font-size:14px;color:var(--ink-mid);line-height:1.8;white-space:pre-wrap;font-weight:300;}
+
+/* ── LGPD CONSENT FINAL ── */
+.consent-card{background:var(--white);border:1px solid var(--border-light);border-radius:14px;padding:2rem;margin-top:2rem;}
+.consent-title{font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:0.4rem;}
+.consent-sub{font-size:14px;color:var(--ink-light);font-weight:300;margin-bottom:1.5rem;line-height:1.7;}
+.consent-options{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;}
+.consent-option{display:flex;align-items:flex-start;gap:12px;padding:1rem 1.25rem;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;}
+.consent-option:hover{border-color:var(--teal);}
+.consent-option.selected-yes{background:var(--teal-pale);border-color:var(--teal);}
+.consent-option.selected-no{background:var(--ice);border-color:var(--border);}
+.consent-option input[type=radio]{accent-color:var(--teal);margin-top:2px;flex-shrink:0;}
+.consent-option-label{font-size:14px;color:var(--ink-mid);font-weight:300;line-height:1.6;cursor:pointer;}
+.consent-option-label strong{font-weight:500;color:var(--ink);}
+.consent-policy{font-size:12px;color:var(--ink-light);font-weight:300;line-height:1.6;margin-bottom:1.25rem;}
+.consent-sent{display:none;padding:1rem;background:var(--teal-pale);border-radius:8px;font-size:14px;color:var(--teal);font-weight:400;text-align:center;}
+
+/* ── FEEDBACK ── */
+.feedback-card{background:var(--olive-pale);border:1px solid rgba(92,122,78,0.2);border-radius:14px;padding:2rem;margin-top:1.25rem;}
+.feedback-title{font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:0.4rem;}
+.feedback-sub{font-size:14px;color:var(--ink-light);font-weight:300;margin-bottom:1.25rem;}
+.star-row{display:flex;gap:6px;margin-bottom:1.25rem;}
+.star{font-size:26px;cursor:pointer;color:var(--border);transition:color 0.15s;background:none;border:none;padding:0;line-height:1;}
+.star.active{color:var(--olive);}
+.feedback-sent{display:none;text-align:center;padding:1.5rem;color:var(--olive);font-weight:400;}
+.feedback-sent .check{font-size:2rem;display:block;margin-bottom:0.5rem;}
+
+.result-actions{display:flex;gap:10px;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border-light);flex-wrap:wrap;}
+.watermark-text{text-align:center;padding:2rem 0 0;font-size:12px;color:var(--border);letter-spacing:0.08em;font-weight:300;}
+
+@media print{
+  .nav,.hero,.btn-row,.result-actions,.feedback-card,.watermark-text,.carta-picker,.consent-card,footer{display:none!important;}
+  .step{display:none!important;}
+  #step-result{display:block!important;}
+  body{background:#fff;}
+  .result-card,.score-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;margin-bottom:1rem;}
+}
+footer{text-align:center;padding:1.5rem 2rem;font-size:12px;color:var(--ink-light);font-weight:300;letter-spacing:0.05em;border-top:1px solid var(--border-light);margin-top:3rem;}
+.footer-author{color:var(--teal);font-weight:400;}
+@media(max-width:520px){.main{padding:2rem 1rem 4rem;}.hero{padding:2.5rem 1rem 2rem;}.nav{padding:0 1rem;}.progress-track{width:100px;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-brand-name">LÚMINIS</div>
+    <div class="nav-brand-sub">Mentoria Médica</div>
+  </div>
+  <div class="nav-right">
+    <div class="progress-track"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="nav-step" id="nav-step">Início</div>
+    <div class="nav-author">por <span>Dra. Marjorie Andreão</span></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="hero-eyebrow">Programa de Mentoria Médica</div>
+  <h1 class="hero-title">Diagnóstico de carreira médica</h1>
+  <p class="hero-sub">Currículo, LinkedIn, marca pessoal e plano de conteúdo — pensado para médicos que querem construir carreiras com autonomia e intenção.</p>
+</div>
+
+<main class="main">
+
+  <!-- LGPD Screen -->
+  <div class="step active" id="step-lgpd">
+    <div class="lgpd-card">
+      <span class="lgpd-icon">🔒</span>
+      <div class="lgpd-title">Seus dados estão seguros</div>
+      <div class="lgpd-sub">Antes de começar, queremos que você saiba exatamente como tratamos suas informações.</div>
+
+      <div class="lgpd-items">
+        <div class="lgpd-item">
+          <div class="lgpd-item-icon">🛡️</div>
+          <div class="lgpd-item-text"><strong>Ambiente seguro.</strong> Todas as informações são processadas por meio de conexão criptografada e não são armazenadas em nenhum servidor após o uso.</div>
+        </div>
+        <div class="lgpd-item">
+          <div class="lgpd-item-icon">🧠</div>
+          <div class="lgpd-item-text"><strong>Sem memória.</strong> O agente não guarda seus dados entre sessões. Ao fechar o navegador, tudo é apagado permanentemente.</div>
+        </div>
+        <div class="lgpd-item">
+          <div class="lgpd-item-icon">📋</div>
+          <div class="lgpd-item-text"><strong>Conformidade com a LGPD.</strong> Respeitamos a Lei Geral de Proteção de Dados (Lei 13.709/2018). Ao final do diagnóstico, você poderá escolher se deseja ou não compartilhar seu relatório com a Dra. Marjorie.</div>
+        </div>
+        <div class="lgpd-item">
+          <div class="lgpd-item-icon">✋</div>
+          <div class="lgpd-item-text"><strong>Você tem controle total.</strong> Nenhum dado é compartilhado sem sua autorização explícita. O relatório é seu — gerado para você e entregue a você.</div>
+        </div>
+      </div>
+
+      <label class="lgpd-check-row">
+        <input type="checkbox" id="lgpd-check">
+        <span class="lgpd-check-label">Estou ciente de como meus dados são tratados e <strong>concordo em continuar</strong>.</span>
+      </label>
+
+      <div class="lgpd-error" id="lgpd-error">Por favor, confirme que leu e está ciente antes de continuar.</div>
+
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="aceitarLGPD()">Entendi, quero começar →</button>
+    </div>
+  </div>
+
+  <!-- Step 1: CV -->
+  <div class="step" id="step-1">
+    <div class="step-eyebrow">Etapa 1 de 7 — Currículo atual</div>
+    <h2 class="step-title">Anexe seu currículo <span class="optional">opcional</span></h2>
+    <p class="step-hint">Pode ser o Lattes exportado, um Word salvo em PDF, qualquer versão que você tenha. O agente vai analisar e reconstruir com base no que realmente importa para o mercado.</p>
+    <div class="upload-zone" onclick="document.getElementById('file-cv').click()">
+      <span class="upload-icon">📄</span>
+      <div class="upload-label">Clique para anexar seu currículo<br><strong>PDF</strong></div>
+      <div class="upload-sub">Máx. 10MB</div>
+    </div>
+    <input type="file" accept=".pdf" id="file-cv" style="display:none" onchange="handleCV(this)">
+    <div class="file-preview" id="preview-cv">
+      <span class="file-preview-name" id="cv-name"></span>
+      <button class="file-remove" onclick="removeCV()">Remover</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo(2)">Continuar →</button>
+      <button class="btn btn-ghost" onclick="goTo(2)">Pular esta etapa</button>
+    </div>
+  </div>
+
+  <!-- Step 2: LinkedIn -->
+  <div class="step" id="step-2">
+    <div class="step-eyebrow">Etapa 2 de 7 — LinkedIn</div>
+    <h2 class="step-title">Prints do seu LinkedIn <span class="optional">opcional</span></h2>
+    <p class="step-hint">Tire prints da headline, foto de perfil, seção "sobre" e experiências. Pode enviar vários.</p>
+    <div class="upload-zone" onclick="document.getElementById('file-li').click()">
+      <span class="upload-icon">💼</span>
+      <div class="upload-label">Clique para anexar prints do LinkedIn<br><strong>JPG ou PNG — pode ser mais de um</strong></div>
+      <div class="upload-sub">Máx. 5MB por imagem</div>
+    </div>
+    <input type="file" accept="image/*" multiple id="file-li" style="display:none" onchange="handleImages('li',this)">
+    <div class="img-previews" id="previews-li"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(1)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goTo(3)">Continuar →</button>
+      <button class="btn btn-ghost" onclick="goTo(3)">Pular</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Instagram -->
+  <div class="step" id="step-3">
+    <div class="step-eyebrow">Etapa 3 de 7 — Instagram</div>
+    <h2 class="step-title">Prints do seu Instagram <span class="optional">opcional</span></h2>
+    <p class="step-hint">Print da bio, foto de perfil e do feed. O agente vai analisar o posicionamento visual e textual.</p>
+    <div class="upload-zone" onclick="document.getElementById('file-ig').click()">
+      <span class="upload-icon">📸</span>
+      <div class="upload-label">Clique para anexar prints do Instagram<br><strong>JPG ou PNG — pode ser mais de um</strong></div>
+      <div class="upload-sub">Máx. 5MB por imagem</div>
+    </div>
+    <input type="file" accept="image/*" multiple id="file-ig" style="display:none" onchange="handleImages('ig',this)">
+    <div class="img-previews" id="previews-ig"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(2)">← Voltar</button>
+      <button class="btn btn-primary" onclick="goTo(4)">Continuar →</button>
+      <button class="btn btn-ghost" onclick="goTo(4)">Pular</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Identidade -->
+  <div class="step" id="step-4">
+    <div class="step-eyebrow">Etapa 4 de 7 — Identidade</div>
+    <h2 class="step-title">O que a medicina significa para você hoje?</h2>
+    <p class="step-hint">Não o que ela deveria significar — o que ela de fato significa agora, neste momento da sua vida.</p>
+    <textarea id="q1" placeholder="Escreva livremente..."></textarea>
+    <div class="error-msg" id="err-1">Por favor, escreva pelo menos algumas palavras antes de continuar.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(3)">← Voltar</button>
+      <button class="btn btn-primary" onclick="validateAndGo('q1','err-1',5)">Continuar →</button>
+      <span class="char-count" id="cc1">0 caracteres</span>
+    </div>
+  </div>
+
+  <!-- Step 5: Valores -->
+  <div class="step" id="step-5">
+    <div class="step-eyebrow">Etapa 5 de 7 — Valores e sucesso</div>
+    <h2 class="step-title">Seus inegociáveis e sua definição de sucesso</h2>
+    <p class="step-hint">O que você não abre mão de jeito nenhum — e como você define uma vida e carreira bem-sucedidas nos seus próprios termos.</p>
+    <textarea id="q2" placeholder="Escreva livremente..." style="min-height:130px;"></textarea>
+    <div class="error-msg" id="err-2">Por favor, escreva pelo menos algumas palavras antes de continuar.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(4)">← Voltar</button>
+      <button class="btn btn-primary" onclick="validateAndGo('q2','err-2',6)">Continuar →</button>
+      <span class="char-count" id="cc2">0 caracteres</span>
+    </div>
+  </div>
+
+  <!-- Step 6: Trajetória -->
+  <div class="step" id="step-6">
+    <div class="step-eyebrow">Etapa 6 de 7 — Trajetória e destino</div>
+    <h2 class="step-title">De onde você vem e para onde quer ir?</h2>
+    <p class="step-hint">Conte sua história — não o currículo, mas o percurso real. E selecione os caminhos que te interessam.</p>
+    <textarea id="q3" placeholder="Conte livremente sua trajetória..." style="min-height:110px;margin-bottom:1.5rem;"></textarea>
+    <div class="tag-label">Para onde você quer ir — pode selecionar mais de um:</div>
+    <div class="tag-row">
+      <button class="tag" onclick="toggleTag(this)">Consultório próprio</button>
+      <button class="tag" onclick="toggleTag(this)">Plantão médico</button>
+      <button class="tag" onclick="toggleTag(this)">Hospitalista</button>
+      <button class="tag" onclick="toggleTag(this)">Telemedicina</button>
+      <button class="tag" onclick="toggleTag(this)">Home care</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina de emergência</button>
+      <button class="tag" onclick="toggleTag(this)">Docência médica</button>
+      <button class="tag" onclick="toggleTag(this)">Corporativo e healthtech</button>
+      <button class="tag" onclick="toggleTag(this)">Indústria farmacêutica</button>
+      <button class="tag" onclick="toggleTag(this)">Medical affairs</button>
+      <button class="tag" onclick="toggleTag(this)">Market access</button>
+      <button class="tag" onclick="toggleTag(this)">Farmacovigilância</button>
+      <button class="tag" onclick="toggleTag(this)">Pesquisa clínica</button>
+      <button class="tag" onclick="toggleTag(this)">Gestão hospitalar</button>
+      <button class="tag" onclick="toggleTag(this)">Auditoria médica</button>
+      <button class="tag" onclick="toggleTag(this)">Perícia médica</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina do trabalho</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina esportiva</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina legal</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina integrativa</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina internacional</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina de áreas remotas</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina em cruzeiros</button>
+      <button class="tag" onclick="toggleTag(this)">Medicina aeronáutica</button>
+      <button class="tag" onclick="toggleTag(this)">Empreendedorismo em saúde</button>
+      <button class="tag" onclick="toggleTag(this)">Marca pessoal e conteúdo</button>
+      <button class="tag" onclick="toggleTag(this)">Mentor e educador médico</button>
+      <button class="tag" onclick="toggleTag(this)">Ainda vou descobrir</button>
+    </div>
+    <div class="error-msg" id="err-3">Escreva sua trajetória ou selecione pelo menos um destino.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(5)">← Voltar</button>
+      <button class="btn btn-primary" onclick="validateStep6()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- Step 7: Formação -->
+  <div class="step" id="step-7">
+    <div class="step-eyebrow">Etapa 7 de 7 — Formação e experiência</div>
+    <h2 class="step-title">Sua formação e experiência profissional</h2>
+    <p class="step-hint">Especialidade, residências, onde já atuou, há quanto tempo é formado. Não precisa ser o Lattes — só o essencial para entender seu momento atual.</p>
+    <textarea id="q4" placeholder="Ex: Médica há 8 anos, especialista em clínica médica, trabalhei em hospital público por 5 anos, hoje atuo em telemedicina..." style="min-height:140px;"></textarea>
+    <div class="error-msg" id="err-4">Por favor, conte um pouco sobre sua trajetória profissional.</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goTo(6)">← Voltar</button>
+      <button class="btn btn-primary" onclick="generate()">Gerar meu diagnóstico →</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="step" id="step-loading">
+    <div class="loading-wrap">
+      <div class="loading-title">Gerando seu diagnóstico...</div>
+      <div class="loading-sub">Cada seção é gerada com cuidado — leva cerca de 2 minutos</div>
+      <div class="loading-phases">
+        <div class="phase-item"><div class="phase-icon phase-pending" id="pi-0"></div><span>Analisando identidade e gerando score</span></div>
+        <div class="phase-item"><div class="phase-icon phase-pending" id="pi-1"></div><span>Avaliando currículo e próximos passos</span></div>
+        <div class="phase-item"><div class="phase-icon phase-pending" id="pi-2"></div><span>Analisando LinkedIn e Instagram</span></div>
+        <div class="phase-item"><div class="phase-icon phase-pending" id="pi-3"></div><span>Criando plano de conteúdo 15 dias</span></div>
+        <div class="phase-item"><div class="phase-icon phase-pending" id="pi-4"></div><span>Redigindo currículo reformulado</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="step" id="step-result">
+    <div class="result-header">
+      <div class="result-eyebrow">LÚMINIS · Diagnóstico concluído</div>
+      <div class="result-title">Seu posicionamento médico</div>
+      <div class="result-sub">Gerado em <span id="gen-date"></span> · por Dra. Marjorie Andreão</div>
+    </div>
+
+    <div id="result-score"></div>
+    <div id="result-identidade"></div>
+    <div id="result-curriculo"></div>
+    <div id="result-redes"></div>
+    <div id="result-plano"></div>
+    <div id="result-curriculo-novo"></div>
+    <div id="result-passos"></div>
+
+    <!-- Cartas picker -->
+    <div class="carta-picker" id="carta-picker">
+      <div class="carta-picker-title">Cartas de apresentação</div>
+      <div class="carta-picker-sub">Selecione os destinos para os quais você quer uma carta personalizada. Cada carta será escrita especificamente para aquele mercado.</div>
+      <div class="carta-tags" id="carta-tags"></div>
+      <div class="carta-generating" id="carta-generating">
+        <div class="mini-spinner"></div>
+        <span>Gerando suas cartas de apresentação...</span>
+      </div>
+      <button class="btn btn-olive" id="carta-btn" onclick="gerarCartas()">Gerar cartas selecionadas →</button>
+    </div>
+    <div id="result-cartas"></div>
+
+    <div class="watermark-text">LÚMINIS — Programa de Mentoria Médica · Dra. Marjorie Andreão</div>
+
+    <!-- Consentimento LGPD final -->
+    <div class="consent-card">
+      <div class="consent-title">Compartilhar com a Dra. Marjorie?</div>
+      <div class="consent-sub">Nos termos da Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018), você pode autorizar ou recusar o compartilhamento do seu relatório. Esta escolha não afeta seu acesso ao diagnóstico.</div>
+      <div class="consent-options">
+        <label class="consent-option" id="opt-sim" onclick="selectConsent('sim')">
+          <input type="radio" name="consent" value="sim" id="radio-sim">
+          <span class="consent-option-label"><strong>Sim, autorizo.</strong> A Dra. Marjorie pode visualizar meu relatório para fins de melhoria do programa LÚMINIS e eventual contato sobre a mentoria.</span>
+        </label>
+        <label class="consent-option" id="opt-nao" onclick="selectConsent('nao')">
+          <input type="radio" name="consent" value="nao" id="radio-nao">
+          <span class="consent-option-label"><strong>Não autorizo.</strong> Meu relatório é exclusivamente meu e não deve ser acessado por terceiros.</span>
+        </label>
+      </div>
+      <div class="consent-policy">Ao autorizar, seus dados serão tratados com confidencialidade e utilizados apenas para os fins declarados, conforme a LGPD. Você pode revogar esse consentimento a qualquer momento pelo e-mail do programa.</div>
+      <button class="btn btn-primary" onclick="submitConsent()">Confirmar escolha →</button>
+      <div class="consent-sent" id="consent-sent">✓ Sua escolha foi registrada. Obrigada!</div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback-card">
+      <div class="feedback-title">Como foi a experiência?</div>
+      <div class="feedback-sub">Sua opinião ajuda a melhorar o LÚMINIS para os próximos médicos.</div>
+      <div class="star-row" id="star-row">
+        <button class="star" onclick="rateStar(1)">★</button>
+        <button class="star" onclick="rateStar(2)">★</button>
+        <button class="star" onclick="rateStar(3)">★</button>
+        <button class="star" onclick="rateStar(4)">★</button>
+        <button class="star" onclick="rateStar(5)">★</button>
+      </div>
+      <textarea id="feedback-text" placeholder="O que poderia ser melhor? O que foi mais útil?" style="min-height:90px;margin-bottom:1rem;"></textarea>
+      <button class="btn btn-primary" id="feedback-btn" onclick="submitFeedback()">Enviar feedback →</button>
+      <div class="feedback-sent" id="feedback-sent"><span class="check">✓</span>Obrigada! Isso ajuda muito a melhorar o programa.</div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="window.print()">Salvar como PDF →</button>
+      <button class="btn btn-olive" onclick="downloadDocx()">Baixar currículo (.docx) →</button>
+      <button class="btn" onclick="copyAll()">Copiar tudo</button>
+      <button class="btn btn-ghost" onclick="restart()">Recomeçar</button>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  LÚMINIS — Programa de Mentoria Médica ·
+  <span class="footer-author">Dra. Marjorie Andreão</span>
+</footer>
+
+<script>
+const selectedDest=new Set();
+const selectedCartas=new Set();
+let cvFile=null,liImages=[],igImages=[],currentRating=0,consentChoice='';
+let resumeText='',fullContext='';
+
+function aceitarLGPD(){
+  const check=document.getElementById('lgpd-check');
+  const err=document.getElementById('lgpd-error');
+  if(!check.checked){err.style.display='block';return;}
+  err.style.display='none';
+  goTo(1);
+}
+
+function goTo(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  const id=n==='lgpd'?'step-lgpd':n==='loading'?'step-loading':n==='result'?'step-result':'step-'+n;
+  const t=document.getElementById(id);if(t)t.classList.add('active');
+  const pct=typeof n==='number'?Math.round((n/7)*95):n==='result'?100:90;
+  document.getElementById('progress').style.width=Math.min(pct,100)+'%';
+  document.getElementById('nav-step').textContent=typeof n==='number'?'Etapa '+n+' de 7':n==='result'?'Concluído':'Gerando...';
+  if(n==='result')document.getElementById('hero').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateAndGo(f,e,n){
+  const ta=document.getElementById(f),err=document.getElementById(e);
+  if(!ta||ta.value.trim().length<10){err.style.display='block';return;}
+  err.style.display='none';goTo(n);
+}
+
+function validateStep6(){
+  const q3=document.getElementById('q3'),err=document.getElementById('err-3');
+  if((!q3||q3.value.trim().length<10)&&selectedDest.size===0){err.style.display='block';return;}
+  err.style.display='none';goTo(7);
+}
+
+function toggleTag(el){
+  el.classList.toggle('selected');
+  if(el.classList.contains('selected'))selectedDest.add(el.textContent);
+  else selectedDest.delete(el.textContent);
+}
+
+function handleCV(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>10*1024*1024){alert('Arquivo muito grande. Máximo 10MB.');return;}
+  cvFile=file;document.getElementById('cv-name').textContent=file.name;
+  document.getElementById('preview-cv').style.display='flex';
+}
+function removeCV(){cvFile=null;document.getElementById('file-cv').value='';document.getElementById('preview-cv').style.display='none';}
+
+function handleImages(type,input){
+  const files=Array.from(input.files),store=type==='li'?liImages:igImages;
+  const container=document.getElementById('previews-'+type);
+  files.forEach(file=>{
+    if(file.size>5*1024*1024){alert('Imagem muito grande: '+file.name);return;}
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const obj={name:file.name,data:e.target.result,type:file.type};store.push(obj);
+      const wrap=document.createElement('div');wrap.className='img-thumb-wrap';
+      const img=document.createElement('img');img.className='img-thumb';img.src=e.target.result;
+      const rm=document.createElement('button');rm.className='img-thumb-remove';rm.textContent='×';
+      rm.onclick=()=>{const i=store.indexOf(obj);if(i>-1)store.splice(i,1);wrap.remove();};
+      wrap.appendChild(img);wrap.appendChild(rm);container.appendChild(wrap);
+    };reader.readAsDataURL(file);
+  });
+}
+
+function b64(d){return d.split(',')[1];}
+
+function setPhase(i,state){
+  const icon=document.getElementById('pi-'+i);
+  icon.className='phase-icon';
+  if(state==='active')icon.classList.add('phase-active');
+  else if(state==='done')icon.classList.add('phase-done');
+  else icon.classList.add('phase-pending');
+}
+
+async function callClaude(system,userContent,maxTokens=4000){
+  const response=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system,messages:[{role:'user',content:userContent}]})
+  });
+  const data=await response.json();
+  if(data.error)throw new Error(data.error.message);
+  return data.content?.map(b=>b.text||'').join('')||'';
+}
+
+async function buildBase(q1,q2,q3,q4,destinos){
+  const c=[];
+  if(cvFile){
+    try{
+      const d=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.readAsDataURL(cvFile);});
+      c.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:d}});
+      c.push({type:'text',text:'Currículo atual acima.'});
+    }catch(e){}
+  }
+  if(liImages.length){liImages.forEach(img=>c.push({type:'image',source:{type:'base64',media_type:img.type,data:b64(img.data)}}));c.push({type:'text',text:liImages.length+' prints do LinkedIn acima.'});}
+  if(igImages.length){igImages.forEach(img=>c.push({type:'image',source:{type:'base64',media_type:img.type,data:b64(img.data)}}));c.push({type:'text',text:igImages.length+' prints do Instagram acima.'});}
+  c.push({type:'text',text:`PERFIL:\nMedicina hoje: ${q1}\nInegociáveis e sucesso: ${q2}\nTrajetória: ${q3}\nDestinos: ${destinos}\nFormação: ${q4}`});
+  return c;
+}
+
+const SYS=`Você é o agente de diagnóstico de carreira médica do programa LÚMINIS, criado pela Dra. Marjorie, pediatra intensivista brasileira.
+
+Você sabe que:
+- Currículo acadêmico (Lattes) é completamente diferente de currículo profissional de mercado
+- Médicos listam simpósios e congressos que não têm peso no mercado
+- A maioria das vagas médicas no Brasil é PJ, não CLT
+- Médicos tendem a se reduzir ao título — muitos não sabem quem são além da especialidade
+- Existe medicina além da assistência: docência, indústria, corporativo, gestão, telemedicina, perícia, pesquisa, empreendedorismo, conteúdo digital e muito mais
+
+Tom: acolhedor, direto, sem jargão, nunca genérico. Valide antes de orientar. Seja extenso e rico.`;
+
+async function generate(){
+  const q4=document.getElementById('q4');
+  const err4=document.getElementById('err-4');
+  if(!q4||q4.value.trim().length<10){err4.style.display='block';return;}
+  err4.style.display='none';
+  goTo('loading');
+  for(let i=0;i<5;i++)setPhase(i,'pending');
+
+  const q1=document.getElementById('q1').value,q2=document.getElementById('q2').value;
+  const q3=document.getElementById('q3').value,q4v=q4.value;
+  const destinos=Array.from(selectedDest).join(', ')||'Não selecionado';
+  fullContext=`Medicina hoje: ${q1}\nInegociáveis e sucesso: ${q2}\nTrajetória: ${q3}\nDestinos: ${destinos}\nFormação: ${q4v}`;
+
+  try{
+    const base=await buildBase(q1,q2,q3,q4v,destinos);
+
+    setPhase(0,'active');
+    const r0=await callClaude(SYS,[...base,{type:'text',text:`Gere APENAS:
+
+QUEM VOCÊ É
+Narrativa rica em 4-5 parágrafos sobre quem é esse médico de verdade — essência, momento, unicidade. Não lista. Comece validando.
+
+SCORE DE POSICIONAMENTO
+CLAREZA_DE_IDENTIDADE: [0-100]
+COERÊNCIA_DE_NARRATIVA: [0-100]
+VISIBILIDADE_DE_MERCADO: [0-100]
+NOTA_GERAL: [0-100]
+CLAREZA_HINT: [frase curta de melhoria]
+COERÊNCIA_HINT: [frase curta de melhoria]
+VISIBILIDADE_HINT: [frase curta de melhoria]`}],4000);
+    setPhase(0,'done');
+    renderScore(r0);renderIdentidade(r0);
+
+    setPhase(1,'active');
+    const r1=await callClaude(SYS,[...base,{type:'text',text:`Gere APENAS:
+
+CURRÍCULO PROFISSIONAL
+Análise detalhada. Se foi enviado currículo, comente especificamente. O que remover, o que destacar, como reformatar para os destinos declarados. Inclua sugestão de parágrafo de perfil já escrito.
+
+PRÓXIMOS PASSOS
+5 ações concretas e acionáveis para as próximas 2 semanas.
+
+Perfil: ${fullContext}`}],4000);
+    setPhase(1,'done');
+    renderCurriculo(r1);renderPassos(r1);
+
+    setPhase(2,'active');
+    const r2=await callClaude(SYS,[...base,{type:'text',text:`Gere APENAS:
+
+LINKEDIN
+Analise prints enviados se houver. Inclua: headline sugerida já escrita + texto completo do "sobre" em primeira pessoa pronto para copiar e colar.
+
+INSTAGRAM
+Analise prints enviados se houver. Inclua: bio reformulada + tom de voz recomendado para posts.
+
+Perfil: ${fullContext}`}],4000);
+    setPhase(2,'done');
+    renderRedes(r2);
+
+    setPhase(3,'active');
+    const r3=await callClaude(SYS,[{type:'text',text:`Crie um plano de conteúdo de 15 dias para Instagram e LinkedIn.
+Para cada dia, use EXATAMENTE este formato (uma linha por dia):
+DIA_N|TEMA DO POST|FORMATO|REDE
+FORMATO: carrossel / vídeo / reels / foto com texto / stories / artigo
+REDE: Instagram / LinkedIn / Ambos
+Temas específicos e personalizados — nada genérico.
+Perfil: ${fullContext}`}],3000);
+    setPhase(3,'done');
+    renderPlano(r3);
+
+    setPhase(4,'active');
+    const r4=await callClaude(SYS,[...base,{type:'text',text:`Escreva a versão COMPLETA e REFORMULADA do currículo profissional.
+
+Comece com a linha: CURRÍCULO REFORMULADO
+
+Depois use o formato:
+[NOME COMPLETO]
+[Especialidade] | [Cidade, Estado] | [email/contato se disponível]
+
+PERFIL PROFISSIONAL
+[3-4 linhas posicionando estrategicamente para os destinos declarados]
+
+EXPERIÊNCIA PROFISSIONAL
+[Cargo mais recente primeiro — instituição, período, bullet points com realizações]
+
+FORMAÇÃO ACADÊMICA
+[Apenas o relevante]
+
+IDIOMAS
+[Nível atual]
+
+COMPETÊNCIAS PRINCIPAIS
+[Máximo 8 competências estratégicas]
+
+Perfil: ${fullContext}`}],4000);
+    setPhase(4,'done');
+    resumeText=r4;
+    renderCurriculoNovo(r4);
+
+    popularCartaTags(destinos);
+    goTo('result');
+    document.getElementById('gen-date').textContent=new Date().toLocaleDateString('pt-BR');
+
+  }catch(e){
+    goTo('result');
+    document.getElementById('result-identidade').innerHTML='<div class="result-card"><div class="result-content" style="color:var(--danger);">Erro ao gerar o diagnóstico. Verifique sua conexão com a internet e tente novamente.<br><br>Dica: abra este arquivo diretamente no Edge ou Chrome, não dentro de outro aplicativo.</div></div>';
+  }
+}
+
+function get(text,key){const m=text.match(new RegExp(key+':\\s*(\\d+)'));return m?parseInt(m[1]):0;}
+function getHint(text,key){const m=text.match(new RegExp(key+':\\s*(.+)'));return m?m[1].trim():'';}
+
+function renderScore(text){
+  const c=get(text,'CLAREZA_DE_IDENTIDADE'),n=get(text,'COERÊNCIA_DE_NARRATIVA'),v=get(text,'VISIBILIDADE_DE_MERCADO'),g=get(text,'NOTA_GERAL');
+  const ch=getHint(text,'CLAREZA_HINT'),nh=getHint(text,'COERÊNCIA_HINT'),vh=getHint(text,'VISIBILIDADE_HINT');
+  document.getElementById('result-score').innerHTML=`
+<div class="score-card">
+  <div class="score-header">
+    <div class="score-title">Score de posicionamento</div>
+    <div class="score-total"><div class="score-number">${g||Math.round((c+n+v)/3)}</div><div class="score-label">de 100</div></div>
+  </div>
+  ${dim('Clareza de identidade',c,ch)}
+  ${dim('Coerência de narrativa',n,nh)}
+  ${dim('Visibilidade de mercado',v,vh)}
+</div>`;
+  setTimeout(()=>document.querySelectorAll('.score-bar-fill').forEach(b=>b.style.width=b.dataset.w),100);
+}
+
+function dim(label,val,hint){
+  return `<div class="score-dim">
+    <div class="score-dim-header"><span class="score-dim-name">${label}</span><span class="score-dim-val">${val}/100</span></div>
+    <div class="score-bar-track"><div class="score-bar-fill" style="width:0%" data-w="${val}%"></div></div>
+    ${hint?`<div class="score-dim-hint">${hint}</div>`:''}
+  </div>`;
+}
+
+function extract(text,key,nextKey){
+  let start=text.indexOf(key);if(start===-1)return '';
+  let end=nextKey?text.indexOf(nextKey,start+key.length):text.length;if(end===-1)end=text.length;
+  return text.slice(start+key.length,end).replace(/^[\s:\-\n]+/,'').replace(/CLAREZA_DE_IDENTIDADE[\s\S]*/,'').replace(/SCORE DE POSICIONAMENTO[\s\S]*/,'').trim();
+}
+function md(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');}
+function card(label,content){if(!content.trim())return '';return `<div class="result-card"><div class="result-card-label">${label}</div><div class="result-content">${md(content)}</div></div>`;}
+
+function renderIdentidade(t){document.getElementById('result-identidade').innerHTML=card('Quem você é',extract(t,'QUEM VOCÊ É','SCORE DE POSICIONAMENTO'));}
+function renderCurriculo(t){document.getElementById('result-curriculo').innerHTML=card('Currículo profissional',extract(t,'CURRÍCULO PROFISSIONAL','PRÓXIMOS PASSOS'));}
+function renderPassos(t){document.getElementById('result-passos').innerHTML=card('Próximos passos',extract(t,'PRÓXIMOS PASSOS',''));}
+function renderRedes(t){document.getElementById('result-redes').innerHTML=card('LinkedIn',extract(t,'LINKEDIN','INSTAGRAM'))+card('Instagram',extract(t,'INSTAGRAM',''));}
+function renderCurriculoNovo(t){const c=extract(t,'CURRÍCULO REFORMULADO','');document.getElementById('result-curriculo-novo').innerHTML=card('Currículo reformulado',c||t);}
+
+function renderPlano(text){
+  const lines=text.split('\n').filter(l=>l.includes('|'));
+  if(!lines.length){document.getElementById('result-plano').innerHTML=card('Plano de conteúdo — 15 dias',text);return;}
+  let grid='<div class="plan-grid">';
+  lines.slice(0,15).forEach((line,i)=>{
+    const p=line.split('|');if(p.length<2)return;
+    const tema=(p[1]||'').trim(),formato=(p[2]||'').trim(),rede=(p[3]||'').trim();
+    grid+=`<div class="plan-day"><div class="plan-day-num">Dia ${i+1}</div><div class="plan-day-theme">${tema}</div><div class="plan-day-format">${formato}${rede?' · '+rede:''}</div></div>`;
+  });
+  grid+='</div>';
+  document.getElementById('result-plano').innerHTML=`<div class="result-card"><div class="result-card-label">Plano de conteúdo — 15 dias</div>${grid}</div>`;
+}
+
+function popularCartaTags(destinos){
+  const container=document.getElementById('carta-tags');container.innerHTML='';
+  const lista=destinos.split(',').map(d=>d.trim()).filter(d=>d&&d!=='Não selecionado');
+  const base=lista.length?lista:['Telemedicina','Indústria farmacêutica','Gestão hospitalar','Docência médica'];
+  base.forEach(d=>{
+    const btn=document.createElement('button');btn.className='carta-tag';btn.textContent=d;
+    btn.onclick=()=>{btn.classList.toggle('selected');if(btn.classList.contains('selected'))selectedCartas.add(d);else selectedCartas.delete(d);};
+    container.appendChild(btn);
+  });
+}
+
+async function gerarCartas(){
+  if(!selectedCartas.size){alert('Selecione pelo menos um destino para gerar a carta.');return;}
+  document.getElementById('carta-btn').style.display='none';
+  document.getElementById('carta-generating').style.display='flex';
+  const destinos=Array.from(selectedCartas).join(', ');
+  try{
+    const text=await callClaude(SYS,[{type:'text',text:`Escreva uma carta de apresentação personalizada para CADA destino: ${destinos}
+
+Para cada carta use o formato EXATO:
+CARTA: [nome do destino]
+[texto da carta — 3 parágrafos, primeira pessoa, tom profissional e humano, pronta para enviar]
+
+Perfil: ${fullContext}`}],4000);
+    renderCartas(text,Array.from(selectedCartas));
+  }catch(e){
+    document.getElementById('carta-generating').style.display='none';
+    document.getElementById('carta-btn').style.display='block';
+    alert('Erro ao gerar as cartas. Verifique sua conexão e tente novamente.');
+  }
+}
+
+function renderCartas(text,destinos){
+  document.getElementById('carta-generating').style.display='none';
+  document.getElementById('carta-picker').style.display='none';
+  let html='<div class="result-card"><div class="result-card-label">Cartas de apresentação</div><div>';
+  destinos.forEach((dest,i)=>{
+    const key='CARTA: '+dest,nextKey=destinos[i+1]?'CARTA: '+destinos[i+1]:'';
+    let content=extract(text,key,nextKey);
+    html+=`<div class="carta-destino"><div class="carta-destino-title">${dest}</div><div class="carta-text">${md(content)}</div></div>`;
+  });
+  html+='</div></div>';
+  document.getElementById('result-cartas').innerHTML=html;
+}
+
+function selectConsent(choice){
+  consentChoice=choice;
+  document.getElementById('opt-sim').classList.toggle('selected-yes',choice==='sim');
+  document.getElementById('opt-nao').classList.toggle('selected-no',choice==='nao');
+  document.getElementById('radio-'+choice).checked=true;
+}
+
+function submitConsent(){
+  if(!consentChoice){alert('Por favor, selecione uma opção antes de confirmar.');return;}
+  const btn=document.querySelector('.consent-card .btn-primary');
+  btn.style.display='none';
+  document.getElementById('consent-sent').style.display='block';
+  console.log('LUMINIS Consentimento LGPD:',{escolha:consentChoice,data:new Date().toISOString(),autorizado:consentChoice==='sim'});
+}
+
+function copyAll(){
+  const texts=Array.from(document.querySelectorAll('.result-content,.carta-text,.plan-day')).map(el=>el.innerText).join('\n\n---\n\n');
+  navigator.clipboard.writeText(texts).then(()=>{const btn=event.target;const o=btn.textContent;btn.textContent='Copiado!';setTimeout(()=>btn.textContent=o,2000);});
+}
+
+function downloadDocx(){
+  if(!resumeText.trim()){alert('O currículo reformulado não foi encontrado.');return;}
+  const clean=resumeText.replace(/\*\*(.*?)\*\*/g,'$1').replace(/CURRÍCULO REFORMULADO\s*/i,'');
+  const lines=clean.split('\n');
+  let bodyXml='';
+  lines.forEach(line=>{
+    const t=line.trim();
+    if(!t){bodyXml+='<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>';return;}
+    const isH=t.match(/^[A-ZÁÉÍÓÚÀÂÃÊÔÇ\s\|·\-]{4,}$/)&&t.length<70&&!t.includes('.');
+    const sz=isH?'26':'22';const color=isH?'2E7D7A':'1C2420';
+    const esc=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    bodyXml+=`<w:p><w:pPr><w:spacing w:after="120"/></w:pPr><w:r><w:rPr><w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/>${isH?'<w:b/>':''}<w:color w:val="${color}"/></w:rPr><w:t xml:space="preserve">${esc}</w:t></w:r></w:p>`;
+  });
+  const xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${bodyXml}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>`;
+  const blob=new Blob([xml],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='LUMINIS-curriculo.docx';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function rateStar(n){currentRating=n;document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('active',i<n));}
+
+function submitFeedback(){
+  const text=document.getElementById('feedback-text').value.trim();
+  if(!currentRating&&!text){alert('Selecione uma nota ou escreva um comentário.');return;}
+  document.getElementById('feedback-btn').style.display='none';
+  document.getElementById('feedback-text').style.display='none';
+  document.getElementById('star-row').style.display='none';
+  document.getElementById('feedback-sent').style.display='block';
+  console.log('LUMINIS Feedback:',{rating:currentRating,text,date:new Date().toISOString()});
+}
+
+function restart(){
+  cvFile=null;liImages=[];igImages=[];selectedDest.clear();selectedCartas.clear();
+  resumeText='';fullContext='';currentRating=0;consentChoice='';
+  document.querySelectorAll('textarea').forEach(ta=>ta.value='');
+  document.querySelectorAll('.tag.selected,.carta-tag.selected').forEach(t=>t.classList.remove('selected'));
+  document.querySelectorAll('.char-count').forEach(cc=>cc.textContent='0 caracteres');
+  document.querySelectorAll('.error-msg').forEach(e=>e.style.display='none');
+  document.getElementById('preview-cv').style.display='none';
+  document.getElementById('previews-li').innerHTML='';
+  document.getElementById('previews-ig').innerHTML='';
+  document.getElementById('file-cv').value='';
+  ['result-score','result-identidade','result-curriculo','result-redes','result-plano','result-curriculo-novo','result-passos','result-cartas'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('carta-picker').style.display='block';
+  document.getElementById('carta-btn').style.display='block';
+  document.getElementById('carta-generating').style.display='none';
+  document.getElementById('hero').style.display='';
+  document.getElementById('lgpd-check').checked=false;
+  document.getElementById('opt-sim').classList.remove('selected-yes');
+  document.getElementById('opt-nao').classList.remove('selected-no');
+  document.getElementById('consent-sent').style.display='none';
+  document.querySelector('.consent-card .btn-primary').style.display='block';
+  document.getElementById('feedback-btn').style.display='block';
+  document.getElementById('feedback-text').style.display='block';
+  document.getElementById('star-row').style.display='flex';
+  document.getElementById('feedback-sent').style.display='none';
+  for(let i=0;i<5;i++)setPhase(i,'pending');
+  goTo('lgpd');
+}
+
+document.querySelectorAll('textarea').forEach(ta=>{
+  const n=ta.id.replace('q','');const cc=document.getElementById('cc'+n);
+  if(cc)ta.addEventListener('input',()=>cc.textContent=ta.value.length+' caracteres');
+});
+</script>
+</body>
+</html>
